@@ -23,16 +23,12 @@ def test_qa_flow(driver):
     qa.open_qa_page()
     # URL validation
     assert qa.current_url == "https://insiderone.com/careers/quality-assurance/", "Home Page URL Is Not Correct"
+    # clicking button
     qa.click_see_all_jobs()
+    # URL validation
     assert open_positions.is_url_contains(open_positions.URL), "Open Position PageURL Not As Expected"
-    open_positions.wait_until_qa_department_op()
+    # Waiting Department Filter to Become Quality Assurance
+    assert open_positions.wait_until_qa_department_op()
+    # Waiting Jobs to be listed
     open_positions.wait_for_job_list_to_load()
-
-    # open_positions.filter_by_location("Istanbul, Turkey")
-    # print("✓ Filtered by Location: Istanbul, Turkey")
-    #
-    # # 3 - Filter
-    # open_positions.filter_by_location("Istanbul, Turkey")
-    # open_positions.filter_by_department("Quality Assurance")
-    #
-    # assert open_positions.is_job_list_present()
+    open_positions.filter_by_location("Istanbul, Turkiye")
