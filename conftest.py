@@ -1,53 +1,62 @@
 import pytest
-import os
-from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
+from utils.screenshot import take_screenshot
+import os
+from datetime import datetime
 
 
 def pytest_addoption(parser):
+    """Add command line options for browser selection"""
     parser.addoption(
         "--browser",
         action="store",
         default="chrome",
-        help="Choose browser: chrome or firefox"
+        help="Browser to run tests: chrome or firefox"
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def driver(request):
-    browser = request.config.getoption("--browser")
+    """Setup and teardown browser driver"""
+    browser = request.config.getoption("--browser").lower()
 
-    if browser.lower() == "chrome":
+    if browser == "chrome":
+        options = webdriver.ChromeOptions()
+        options.add_argument("--start-maximized")
+        options.add_argument("--disable-blink-features=AutomationControlled")
         driver = webdriver.Chrome(
-            service=ChromeService(ChromeDriverManager().install())
+            service=ChromeService(ChromeDriverManager().install()),
+            options=options
         )
-    elif browser.lower() == "firefox":
+    elif browser == "firefox":
+        options = webdriver.FirefoxOptions()
         driver = webdriver.Firefox(
-            service=FirefoxService(GeckoDriverManager().install())
+            service=FirefoxService(GeckoDriverManager().install()),
+            options=options
         )
+        driver.maximize_window()
     else:
-        raise ValueError("Unsupported browser. Use chrome or firefox.")
+        raise ValueError(f"Browser {browser} is not supported")
 
-    driver.maximize_window()
+    driver.implicitly_wait(10)
+
     yield driver
+
+    # Teardown
     driver.quit()
 
 
-# Screenshot on failure
 @pytest.hookimpl(hookwrapper=True)
-def pytest_runtest_makereport(item):
+def pytest_runtest_makereport(item, call):
+    """Take screenshot on test failure"""
     outcome = yield
     report = outcome.get_result()
 
     if report.when == "call" and report.failed:
-        driver = item.funcargs.get("driver")
+        driver = item.funcargs.get('driver')
         if driver:
-            os.makedirs("screenshots", exist_ok=True)
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            driver.save_screenshot(
-                f"screenshots/{item.name}_{timestamp}.png"
-            )
+            take_screenshot(driver, item.name)

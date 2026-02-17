@@ -20,12 +20,12 @@ class BasePage:
     def open_url(self):
         self.driver.get(self.URL)
 
-    def wait_for_page_load(self, timeout: int = 10):
+    def wait_for_page_load(self, timeout: int = 30):
         WebDriverWait(self.driver, timeout).until(
             lambda d: d.execute_script("return document.readyState") == "complete"
         )
 
-    def wait_for_visibility(self, locator: Locator, timeout: int = 10):
+    def wait_for_visibility(self, locator: Locator, timeout: int = 30):
         return WebDriverWait(self.driver, timeout).until(
             EC.visibility_of_element_located(locator)
         )
@@ -52,3 +52,14 @@ class BasePage:
             return True
         except TimeoutException:
             return False
+
+    def click_element(self, locator, timeout=15):
+        """Click element with explicit wait"""
+        wait = WebDriverWait(self.driver, timeout)
+        element = wait.until(EC.element_to_be_clickable(locator))
+        element.click()
+
+    def find_element(self, locator, timeout=15):
+        """Find element with explicit wait"""
+        wait = WebDriverWait(self.driver, timeout)
+        return wait.until(EC.presence_of_element_located(locator))

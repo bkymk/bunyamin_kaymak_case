@@ -15,10 +15,35 @@ class HomePage(BasePage):
     HERO_CONTENT = (By.CLASS_NAME, "homepage-hero-content")
     # FOOTER = (By.TAG_NAME, "footer")
     SECTIONS = (By.XPATH, "//main//section")
+    COOKIE_ACCEPT = (By.ID, "wt-cli-accept-all-btn")
 
     def open_home_page(self):
         self.open_url()
         self.wait_for_page_load()
+
+    def accept_cookies(self):
+        """Accept cookies if banner appears"""
+        try:
+            if self.is_element_visible(self.COOKIE_ACCEPT, timeout=5):
+                self.click_element(self.COOKIE_ACCEPT)
+        except:
+            pass  # Cookie banner not present
+
+    def is_logo_visible(self):
+        """Check if logo is visible"""
+        return self.is_element_visible(self.HEADER_LOGO)
+
+    def is_navigation_menu_visible(self):
+        """Check if navigation menu is visible"""
+        return self.is_element_visible(self.HEADER_MENU)
+
+    def verify_main_blocks_loaded(self):
+        """Verify all main blocks are loaded on home page"""
+        blocks_status = {
+            'logo': self.is_logo_visible(),
+            'navigation': self.is_navigation_menu_visible()
+        }
+        return all(blocks_status.values())
 
     def is_home_page_blocks_loaded(self):
         """
