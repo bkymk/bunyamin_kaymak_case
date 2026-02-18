@@ -47,9 +47,9 @@ def driver(request):
         # --- HEADLESS MOD ---
         if headless:
             options.add_argument("--headless=new")  # Yeni headless modu (Chrome 109+)
-            print("\n🚀 TEST HEADLESS MODDA ÇALIŞIYOR (Tarayıcı penceresi görünmeyecek)\n")
+            print("🚀 TEST HEADLESS MODDA ÇALIŞIYOR (Tarayıcı penceresi görünmeyecek)")
         else:
-            print("\n🚀 TEST NORMAL MODDA ÇALIŞIYOR (Tarayıcı penceresi görünecek)\n")
+            print("🚀 TEST NORMAL MODDA ÇALIŞIYOR (Tarayıcı penceresi görünecek)")
 
         driver = webdriver.Chrome(
             service=ChromeService(ChromeDriverManager().install()),
