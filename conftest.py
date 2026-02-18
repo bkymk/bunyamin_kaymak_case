@@ -5,8 +5,6 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from utils.screenshot import take_screenshot
-import os
-from datetime import datetime
 
 
 def pytest_addoption(parser):
@@ -47,9 +45,9 @@ def driver(request):
         # --- HEADLESS MOD ---
         if headless:
             options.add_argument("--headless=new")  # Yeni headless modu (Chrome 109+)
-            print("🚀 TEST HEADLESS MODDA ÇALIŞIYOR (Tarayıcı penceresi görünmeyecek)")
+            print("TEST HEADLESS MODDA ÇALIŞIYOR (Tarayıcı penceresi görünmeyecek)")
         else:
-            print("🚀 TEST NORMAL MODDA ÇALIŞIYOR (Tarayıcı penceresi görünecek)")
+            print("TEST NORMAL MODDA ÇALIŞIYOR (Tarayıcı penceresi görünecek)")
 
         driver = webdriver.Chrome(
             service=ChromeService(ChromeDriverManager().install()),
@@ -62,9 +60,9 @@ def driver(request):
         # --- HEADLESS MOD (Firefox) ---
         if headless:
             options.add_argument("--headless")
-            print("\n🚀 TEST HEADLESS MODDA ÇALIŞIYOR (Firefox)\n")
+            print("\nTEST HEADLESS MODDA ÇALIŞIYOR (Firefox)\n")
         else:
-            print("\n🚀 TEST NORMAL MODDA ÇALIŞIYOR (Firefox)\n")
+            print("\nTEST NORMAL MODDA ÇALIŞIYOR (Firefox)\n")
 
         driver = webdriver.Firefox(
             service=FirefoxService(GeckoDriverManager().install()),

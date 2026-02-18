@@ -19,14 +19,14 @@ class OpenPositionsPage(BasePage):
 
     def wait_until_qa_department_op(self):
         # Since reaching open positions page from Quality Assurance, should be waiting department filter to be presented as Quality Assurance
-        a = time.time()
+        initial_time = time.time()
         if WebDriverWait(self.driver, 40).until(
                 EC.text_to_be_present_in_element(
                     (By.CSS_SELECTOR, "#filter-by-department option[selected]"),
                     "Quality Assurance"
                 )
         ):
-            print("\nTime Passed to Filter Quality Assurance as Department", time.time() - a)
+            print("\nTime Passed to Filter Department as Quality Assurance", time.time() - initial_time)
             return True
         else:
             return False
@@ -36,12 +36,10 @@ class OpenPositionsPage(BasePage):
         En az 1 tane job card (.position-list-item) görünür olana kadar bekler.
         Spesifik metin beklenmez, sadece element yapısı beklenir.
         """
-        a = time.time()
+        initial_time = time.time()
         # En az 1 tane job item görünür olana kadar bekle
-        # WebDriverWait(self.driver, 30).until(lambda d: len(d.find_elements(*self.JOB_ITEM)) > 0)
         WebDriverWait(self.driver, 40).until(EC.visibility_of_any_elements_located(self.JOB_ITEM))
-        print("Time Passed to Job List", time.time() - a)
-
+        print("Time Passed to List QA Jobs", time.time() - initial_time)
         return True
 
     def filter_by_location(self, location):
@@ -133,7 +131,7 @@ class OpenPositionsPage(BasePage):
             WebDriverWait(self.driver, timeout).until(predicate)
             elapsed = time.time() - start
             print(
-                f"✅ {len(self.driver.find_elements(*self.JOB_ITEM))} job(s) found for '{location_text}' in {elapsed:.2f}s")
+                f"{len(self.driver.find_elements(*self.JOB_ITEM))} job(s) found for '{location_text}' in {elapsed:.2f}s")
             return True
         except TimeoutException:
             # Liste 40 saniye boyunca yanlış lokasyonlu job'ları göstermeye devam ederse
@@ -142,11 +140,11 @@ class OpenPositionsPage(BasePage):
 
             if not visible_jobs:
                 # 0 job var
-                print(f"❌ No jobs found for '{location_text}'")
+                print(f"No jobs found for '{location_text}'")
                 return False
             else:
                 # Gerçekten yanlış lokasyonlu job'lar var
-                print(f"❌ Timeout: Some jobs still do not match location '{location_text}' after {timeout}s")
+                print(f"Timeout: Some jobs still do not match location '{location_text}' after {timeout}s")
                 raise  # TimeoutException'ı tekrar fırlat
 
     def click_first_job_view_role(self):
@@ -167,4 +165,4 @@ class OpenPositionsPage(BasePage):
         time.sleep(1)  # Scrollun bitmesini bekle
 
         view_role_button.click()
-        print("✅ First job's 'View Role' button clicked!")
+        print("First job's 'View Role' button clicked!")

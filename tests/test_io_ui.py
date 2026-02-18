@@ -14,7 +14,7 @@ def test_qa_flow(driver):
     home.open_home_page()
     home.accept_cookies()
     # URL validation
-    assert home.current_url == "https://insiderone.com/", "Home Page URL Is Not Correct"
+    assert home.get_current_url() == "https://insiderone.com/", "Home Page URL Is Not Correct"
     # Title validation
     assert "Insider One" in home.driver.title, "Title is not correct"
     # Main Blocks Load validation
@@ -23,11 +23,11 @@ def test_qa_flow(driver):
     # 2 - QA page
     qa.open_qa_page()
     # URL validation
-    assert qa.current_url == "https://insiderone.com/careers/quality-assurance/", "Home Page URL Is Not Correct"
+    assert qa.get_current_url() == "https://insiderone.com/careers/quality-assurance/", "Home Page URL Is Not Correct"
     # clicking button
     qa.click_see_all_jobs()
     # URL validation
-    assert open_positions.is_url_contains(open_positions.URL), "Open Position PageURL Not As Expected"
+    assert open_positions.wait_for_url_contains(open_positions.URL), "Open Position PageURL Not As Expected"
     # Waiting Department Filter to Become Quality Assurance
     assert open_positions.wait_until_qa_department_op()
     # Waiting Jobs to be listed
@@ -43,9 +43,9 @@ def test_qa_flow(driver):
     driver.switch_to.window(window_handles[1])  # Selenium'u 2. sekmeye (index 1) odakla
 
     # 3. Artık yeni sekmedeyiz, URL'in Lever sayfası olduğunu doğrula
-    WebDriverWait(driver, 15).until(EC.url_contains("jobs.lever.co"))
+    assert WebDriverWait(driver, 15).until(EC.url_contains("jobs.lever.co/insiderone")), f"HATA: Lever sayfası açılamadı!"
 
-    guncel_url = driver.current_url
-    assert "jobs.lever.co/insiderone" in guncel_url, f"HATA: Lever sayfası açılamadı! URL: {guncel_url}"
+    # guncel_url = driver.get_current_url
+    # assert "jobs.lever.co/insiderone" in guncel_url, f"HATA: Lever sayfası açılamadı! URL: {guncel_url}"
 
-    print("🎉 TEST BAŞARIYLA TAMAMLANDI! Lever sayfasına ulaşıldı.")
+    print("TEST BAŞARIYLA TAMAMLANDI! Lever sayfasına ulaşıldı.")

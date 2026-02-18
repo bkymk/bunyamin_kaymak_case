@@ -14,11 +14,11 @@ class QAPage(BasePage):
 
 
     def open_qa_page(self):
-        self.open_url()
+        self.open_url(self.URL)
         self.wait_for_page_load()
 
     def click_see_all_jobs(self):
-        self.wait_and_click(self.SEE_ALL_QA_JOBS)
+        self.click_element(self.SEE_ALL_QA_JOBS)
 
 
 

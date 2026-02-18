@@ -1,7 +1,31 @@
-venv/
 __pycache__/
-*.pyc
-.idea/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+
+# Test outputs
 screenshots/
-.env
+reports/
+.pytest_cache/
+htmlcov/
+.coverage
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Webdriver
+.wdm/
