@@ -1,10 +1,19 @@
+import os
 import pytest
+import time
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from utils.screenshot import take_screenshot
+
+# HTML raporu özelleştirmeleri için
+try:
+    import pytest_html
+except ImportError:
+    pytest_html = None
 
 
 def pytest_addoption(parser):
@@ -23,9 +32,31 @@ def pytest_addoption(parser):
     )
 
 
+def pytest_configure(config):
+    """Rapor adını dinamik olarak belirler: dosya_adı_timestamp veya fulltest_timestamp"""
+    report_dir = "reports"
+    if not os.path.exists(report_dir):
+        os.makedirs(report_dir)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    # Koşulan hedefleri analiz et (config.args)
+    # Örn: pytest tests/test_io_ui.py -> args: ['tests/test_io_ui.py']
+    if len(config.args) == 1 and config.args[0].endswith(".py"):
+        # Tek bir test dosyası koşuluyorsa dosya adını al
+        target_name = os.path.basename(config.args[0]).replace(".py", "")
+    else:
+        # Klasör koşuluyorsa veya birden fazla dosya varsa 'fulltest' de
+        target_name = "fulltest"
+
+    report_file = f"{target_name}_{timestamp}.html"
+    config.option.htmlpath = os.path.join(report_dir, report_file)
+    config.option.self_contained_html = True
+
+
 @pytest.fixture(scope="function")
 def driver(request):
-    """Setup and teardown browser driver"""
+    """Tarayıcı kurulum ve kapatma işlemleri"""
     browser = request.config.getoption("--browser").lower()
     headless = request.config.getoption("--headless")
 
@@ -83,11 +114,29 @@ def driver(request):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    """Take screenshot on test failure"""
+    """Hata anında screenshot alır ve HTML raporuna gömer"""
     outcome = yield
     report = outcome.get_result()
+    extra = getattr(report, "extra", [])
 
-    if report.when == "call" and report.failed:
-        driver = item.funcargs.get('driver')
-        if driver:
-            take_screenshot(driver, item.name)
+    if report.when == "call":
+        xfail = hasattr(report, "wasxfail")
+        if (report.skipped and xfail) or (report.failed and not xfail):
+            driver = item.funcargs.get("driver")
+            if driver:
+                # Screenshot al
+                screenshot_path = take_screenshot(driver, item.name)
+                if screenshot_path and os.path.exists(screenshot_path):
+                    import base64
+                    with open(screenshot_path, "rb") as image_file:
+                        encoded_string = base64.b64encode(image_file.read()).decode()
+
+                    # HTML'e göm
+                    html_content = f'<div><img src="data:image/png;base64,{encoded_string}" alt="screenshot" style="width:304px;height:228px;" ' \
+                                   f'onclick="window.open(this.src)" align="right"/></div>'
+                    extra.append(pytest_html.extras.html(html_content))
+        report.extra = extra
+
+
+def pytest_html_report_title(report):
+    report.title = "QA Automation Assessment Report"
