@@ -1,4 +1,4 @@
-# 🎯 Senior QA Engineer Assessment - Complete Test Automation Suite
+# Senior QA Engineer Assessment - Complete Test Automation Suite
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue)](https://www.python.org/)
 [![Selenium](https://img.shields.io/badge/Selenium-4.40.0-green)](https://www.selenium.dev/)
