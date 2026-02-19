@@ -29,6 +29,7 @@ class TestPetStoreAPI:
         # Cleanup
         requests.delete(f"{BASE_URL}/pet/{payload['id']}")
 
+    @pytest.mark.xfail(reason="API 400 yerine 200 döndürüyor")
     def test_create_pet_negative_empty_name(self):
         """TC2: Negative - Empty name ile pet oluşturma"""
         payload = {
@@ -40,7 +41,7 @@ class TestPetStoreAPI:
         }
         response = requests.post(f"{BASE_URL}/pet", json=payload)
         # REST standardına göre 400 beklenir, API 200 dönüyor (bilinen issue)
-        assert response.status_code in [200, 400], f"Unexpected status: {response.status_code}"
+        assert response.status_code == 400, f"Expected 400, got {response.status_code}"
 
     @pytest.mark.xfail(reason="API 400 yerine 415 döndürüyor - Content-Type header sorunu")
     def test_create_pet_negative_null_payload(self):

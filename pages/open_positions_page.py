@@ -18,7 +18,9 @@ class OpenPositionsPage(BasePage):
     JOB_DEPARTMENT = (By.CSS_SELECTOR, ".position-department")  # Her job card'ın depoartment class'ı
 
     def wait_until_qa_department_op(self):
-        # Since reaching open positions page from Quality Assurance, should be waiting department filter to be presented as Quality Assurance
+        """
+            QA sayfasından açık pozisyonlara sayfasına geçiş yaptığımız için departman filtresini QA olması beklenir
+        """
         initial_time = time.time()
         if WebDriverWait(self.driver, 40).until(
                 EC.text_to_be_present_in_element(
@@ -33,63 +35,28 @@ class OpenPositionsPage(BasePage):
 
     def wait_for_job_list_to_load(self):
         """
-        En az 1 tane job card (.position-list-item) görünür olana kadar bekler.
-        Spesifik metin beklenmez, sadece element yapısı beklenir.
+            En az 1 tane job card görünür olana kadar beklenir.
+            Spesifik metin beklenmez, sadece element yapısı beklenir.
         """
         initial_time = time.time()
-        # En az 1 tane job item görünür olana kadar bekle
+        # En az 1 tane job item görünür olana kadar bekler
         WebDriverWait(self.driver, 40).until(EC.visibility_of_any_elements_located(self.JOB_ITEM))
         print("Time Passed to List QA Jobs", time.time() - initial_time)
         return True
 
     def filter_by_location(self, location):
+        """
+            Lokasyon combosundan text'e göre seçim yapma
+        """
         location_dropdown = Select(self.find_element(self.LOCATION_FILTER))
         location_dropdown.select_by_visible_text(location)
 
     def filter_by_department(self, department):
+        """
+            Departman combosundan text'e göre seçim yapma
+        """
         location_dropdown = Select(self.find_element(self.DEPARTMENT_FILTER))
         location_dropdown.select_by_visible_text(department)
-
-    def wait_for_jobs_by_location(self, location_text):
-        """
-        Location filtresi uygulandıktan sonra eski ilanların gidip,
-        sadece seçilen lokasyona ait ilanların görünür olmasını bekler.
-        """
-        a = time.time()
-
-        def filter_applied(driver):
-            jobs = driver.find_elements(*self.JOB_ITEM)
-            visible_jobs = [job for job in jobs if job.is_displayed()]
-
-            # Eğer hiç görünür job yoksa (liste yenilenirken boşalmışsa), beklemeye devam et
-            if len(visible_jobs) == 0:
-                return False
-
-            # Görünen TÜM ilanların metninde aradığımız lokasyon (örn: "Istanbul, Turkiye") geçmeli
-            for job in visible_jobs:
-                if location_text not in job.text:
-                    # İçinde Istanbul geçmeyen bir ilan hala ekrandaysa, eski liste gitmemiştir.
-                    return False
-
-                    # Eğer döngü başarıyla bittiyse, ekrandaki tüm ilanlar "Istanbul, Turkiye"ye aittir!
-            return True
-
-        # Custom yazdığımız bu koşulun gerçekleşmesini bekle
-        WebDriverWait(self.driver, 40).until(filter_applied)
-
-        # Artık güvenle sayabiliriz
-        job_count = self.get_job_count()
-        print(f"⏱️ Time Passed for Location '{location_text}': {time.time() - a:.2f}s")
-        print(f"✅ {job_count} job(s) found for location: {location_text}")
-
-        return job_count
-
-    def get_job_count(self):
-        """
-        Görünür job sayısını döner.
-        """
-        jobs = self.driver.find_elements(*self.JOB_ITEM)
-        return len([job for job in jobs if job.is_displayed()])
 
     def wait_until_jobs_match_location(self, location_text, timeout=40):
         """
@@ -149,7 +116,7 @@ class OpenPositionsPage(BasePage):
 
     def click_first_job_view_role(self):
         """
-        Görünür olan ilk job'ın 'View Role' butonuna tıklar.
+            Görünür olan ilk job'ın 'View Role' butonuna tıklar.
         """
         jobs = self.driver.find_elements(*self.JOB_ITEM)
         visible_jobs = [job for job in jobs if job.is_displayed()]
@@ -160,7 +127,7 @@ class OpenPositionsPage(BasePage):
         first_job = visible_jobs[0]
         view_role_button = first_job.find_element(By.CLASS_NAME, "btn-navy")
 
-        # Bazen sayfanın altında kalırsa tıklayamayabilir, garanti olsun diye elemente scroll yapalım:
+        # Bazen sayfanın altında kalırsa tıklayamayabilir, garanti olsun diye elemente scroll yapılır:
         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", view_role_button)
         time.sleep(1)  # Scrollun bitmesini bekle
 

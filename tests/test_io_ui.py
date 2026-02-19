@@ -26,6 +26,7 @@ def test_qa_flow(driver):
     assert qa.get_current_url() == "https://insiderone.com/careers/quality-assurance/", "Home Page URL Is Not Correct"
     # clicking button
     qa.click_see_all_jobs()
+    # 3 - OP page
     # URL validation
     assert open_positions.wait_for_url_contains(open_positions.URL), "Open Position PageURL Not As Expected"
     # Waiting Department Filter to Become Quality Assurance
@@ -34,18 +35,12 @@ def test_qa_flow(driver):
     open_positions.wait_for_job_list_to_load()
     open_positions.filter_by_location("Istanbul, Turkiye")
     assert open_positions.wait_until_jobs_match_location("Istanbul, Turkiye")
-    # 1. Butona tıkla (Tarayıcı yeni sekmeyi açar)
+    # Click Button (Browser open new tab)
     open_positions.click_first_job_view_role()
-
-    # 2. Selenium'u YENİ SEKMEYE taşı! (ZORUNLU ADIM)
+    # Switch Selenium to new tab
     WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))  # 2. sekmenin açılmasını bekle
     window_handles = driver.window_handles  # Açık olan tüm sekmelerin ID'lerini al
     driver.switch_to.window(window_handles[1])  # Selenium'u 2. sekmeye (index 1) odakla
-
-    # 3. Artık yeni sekmedeyiz, URL'in Lever sayfası olduğunu doğrula
+    # Now driver switched to new tab, Assert page URL
     assert WebDriverWait(driver, 15).until(EC.url_contains("jobs.lever.co/insiderone")), f"HATA: Lever sayfası açılamadı!"
-
-    # guncel_url = driver.get_current_url
-    # assert "jobs.lever.co/insiderone" in guncel_url, f"HATA: Lever sayfası açılamadı! URL: {guncel_url}"
-
     print("TEST BAŞARIYLA TAMAMLANDI! Lever sayfasına ulaşıldı.")
